@@ -61,24 +61,12 @@ class MaxHeap {
         }
 
         void insert(long long value, int row, int col) {
-            // Podawajam pojemnosc gdy kopiec jest pelny, tworze nowy kopiec
-            if (size == capacity) {
-                capacity *= 2;
-                MultTableElem* newHeap = new MultTableElem[capacity];
-                for(int i = 0; i < size; i++) {
-                    newHeap[i] = heap[i];
-                }
-                delete[] heap;
-                heap = newHeap;
-            }
-            heap[size] = MultTableElem(value, row, col);
-            size++;
+            heap[size++] = MultTableElem(value, row, col);
             moveUp(size - 1);
         }
 
         void deleteMax() {
-            heap[0] = heap[size - 1];
-            size--;
+            heap[0] = heap[--size];
             moveDown(0);
         }
 
@@ -94,7 +82,7 @@ class MaxHeap {
 // ======================= FUNKCJE =======================
 void printKLargestElems(int M, int k) {
     // Ograniczamy podwajanie pojemnosci kopca
-    MaxHeap heap(100005);
+    MaxHeap heap(M);
 
     // Zaczynam od najwiekszej wartosci - M x M 
     heap.insert((long long)M * M, M, M);
@@ -115,12 +103,12 @@ void printKLargestElems(int M, int k) {
             found++;
         }
 
-        // OBSERWACJA: Jezeli jestesmy na przrkatnej to nie musimy wstawiac dwoch elementow do kopca, wiemy ze dwojka "dzieci" jest sobie rowna
-        if (col > 1) {
-            heap.insert((long long)row * (col - 1), row, col - 1);
-        }
-        if (col != row && row > 1) {
+        // OBSERWACJA: Jezeli nie jestesmy na przekatnej to nie musimy wstawiac dwoch elementow do kopca, patrzymy tylko na "gorny" trojkat tabliczki
+        if (row > 1) {
             heap.insert((long long)col * (row - 1), row-1, col);
+        }
+        if (col == row && row > 1 && col > 1) {
+            heap.insert((long long)(row - 1) * (col - 1), row - 1, col - 1);
         }
     }
 }
