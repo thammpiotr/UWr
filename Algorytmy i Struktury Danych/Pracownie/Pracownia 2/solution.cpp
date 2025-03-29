@@ -6,7 +6,7 @@ struct MultTableElem {
     int row;
     int col;
 
-    MultTableElem(long long val = 0, int row = 0, int col = 0) : value(val), row(row), col(col) {}
+    MultTableElem(long long val = 0, int r = 0, int c = 0) : value(val), row(r), col(c) {}
 };
 
 class MaxHeap {
@@ -92,30 +92,14 @@ class MaxHeap {
 };
 
 // ======================= FUNKCJE =======================
-bool isVisited(MultTableElem* visited, int size, int row, int col) {
-    for(int i = 0; i < size; i++) {
-        if(visited[i].row == row && visited[i].col == col) {
-            return true;
-        }
-    }
-    return false;
-}
-
-long long* findKLargestElems(int M, int k) {
-    long long* result = new long long[k];
+void printKLargestElems(int M, int k) {
     // Ograniczamy podwajanie pojemnosci kopca
-    MaxHeap heap(3*k);
-
-    // Sledzenie dodanych wartosci aby zapobiec duplikatom
-    bool* seen = new bool[M*M + 1]();
-
-    // Sledzenie odwiedzonych wartosci aby zapobiec sprawdzaniu tej samej pozycji
-    MultTableElem* visited = new MultTableElem[3*k];
-    int visitedSize = 0;
+    MaxHeap heap(100005);
 
     // Zaczynam od najwiekszej wartosci - M x M 
     heap.insert((long long)M * M, M, M);
-    visited[visitedSize++] = MultTableElem(M*M, M, M);
+
+    long long lastMax = (long long) M*M + 1;
 
     for (int found = 0; found < k && heap.getSize() > 0; ) {
         MultTableElem max = heap.findMax();
@@ -124,31 +108,21 @@ long long* findKLargestElems(int M, int k) {
         int row = max.row;
         int col = max.col;
 
-        if(!seen[value]) {
-            seen[value] = true;
-            result[found++] = value;
+        // Unikamy duplikatow
+        if (value < lastMax ) {
+            std::cout << value << "\n";
+            lastMax = value;
+            found++;
+        }
 
-            //Sprawdzaznie gornego elementu
-            if (row > 1) {
-                long long nextValue = (long long)(row - 1) * col;
-                if (!isVisited(visited, visitedSize, row - 1, col)) {
-                    heap.insert(nextValue, row - 1, col);
-                    visited[visitedSize++] = MultTableElem(nextValue, row-1, col);
-                }
-            }
-            //Sprawdzaznie lewego elementu
-            if (col > 1) {
-                long long nextValue = (long long)row * (col - 1);
-                if(!isVisited(visited, visitedSize, row, col-1)) {
-                    heap.insert(nextValue, row, col - 1);
-                    visited[visitedSize++] = MultTableElem(nextValue, row, col - 1);
-                }
-            }
+        // OBSERWACJA: Jezeli jestesmy na przrkatnej to nie musimy wstawiac dwoch elementow do kopca, wiemy ze dwojka "dzieci" jest sobie rowna
+        if (col > 1) {
+            heap.insert((long long)row * (col - 1), row, col - 1);
+        }
+        if (col != row && row > 1) {
+            heap.insert((long long)col * (row - 1), row-1, col);
         }
     }
-    delete[] seen;
-    delete[] visited;
-    return result;
 }
 
 // ======================= MAIN =======================
@@ -159,12 +133,7 @@ int main() {
     int M, k;
     std::cin >> M >> k;
 
-    long long* result = findKLargestElems(M, k);
+    printKLargestElems(M, k);
 
-    for(int i = 0; i < k; i++) {
-        std::cout << result[i] << "\n";
-    }
-
-    delete[] result;
     return 0;
 }
