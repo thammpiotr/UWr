@@ -25,7 +25,7 @@ class MaxHeap {
                 int right = 2 * j + 2;
 
                 if (left < size && heap[left].value > heap[k].value) {
-                    k = left;              
+                    k = left;
                 }
                 if(right < size && heap[right].value > heap[k].value) {
                     k = right;
@@ -81,10 +81,10 @@ class MaxHeap {
 
 // ======================= FUNKCJE =======================
 void printKLargestElems(int M, int k) {
-    // Ograniczamy podwajanie pojemnosci kopca
+    // Inicjalizacja kopca (nigdy nie przekroczymy M)
     MaxHeap heap(M);
 
-    // Zaczynam od najwiekszej wartosci - M x M 
+    // Zaczynam od najwiekszej wartosci - M x M
     heap.insert((long long)M * M, M, M);
 
     long long lastMax = (long long) M*M + 1;
@@ -103,9 +103,11 @@ void printKLargestElems(int M, int k) {
             found++;
         }
 
-        // OBSERWACJA: Jezeli nie jestesmy na przekatnej to nie musimy wstawiac dwoch elementow do kopca, patrzymy tylko na "gorny" trojkat tabliczki
-        if (row > 1) {
-            heap.insert((long long)col * (row - 1), row-1, col);
+        // OBSERWACJA: Jezeli nie jestesmy na przekatnej to nie musimy wstawiac dwoch elementow do kopca.
+        // Mozemy patrzec tylko na "gorny" lub w tym wypadku "dolny" trojkat tabliczki i dodawac element u gory(gorny trojkat) lub po lewej (dolny trojkat - w tym wypadku).
+        // A elementy na przekatnej dodaja nam dodatkowo nastpny element na przekatnej.
+        if (col > 1) {
+            heap.insert((long long)(col - 1) * row, row, col-1);
         }
         if (col == row && row > 1 && col > 1) {
             heap.insert((long long)(row - 1) * (col - 1), row - 1, col - 1);
